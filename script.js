@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sizeButtons = document.querySelectorAll('.size-btn');
     const removeAudio = document.getElementById('removeAudio');
     const compressBtn = document.getElementById('compressBtn');
+    const newVideoBtn = document.getElementById('newVideoBtn');
     const progressSection = document.querySelector('.progress-section');
     const progressFill = document.querySelector('.progress-fill');
     const progressText = document.querySelector('.progress-text');
@@ -59,7 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
         videoInput: !!videoInput,
         fileName: !!fileName,
         sizeButtons: sizeButtons.length,
-        compressBtn: !!compressBtn
+        compressBtn: !!compressBtn,
+        newVideoBtn: !!newVideoBtn
     });
 
     let selectedFile = null;
@@ -103,8 +105,80 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Compress button handler
-    compressBtn.addEventListener('click', async () => {
+    // Helper function to show error messages
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+    }
+
+    // Helper function to reset the button state
+    function resetCompressButton() {
+        progressSection.style.display = 'none';
+        resultsSection.style.display = 'none';
+        compressBtn.disabled = false;
+        compressBtn.textContent = 'Compress Video';
+        
+        // Remove the onclick handler that was assigned for download
+        // This allows the original addEventListener handler to work again
+        compressBtn.onclick = null;
+    }
+
+    // Helper function to reset the app state for a new video
+    function resetAppState() {
+        // Reset button
+        resetCompressButton();
+        delete compressBtn.dataset.downloadUrl;
+        
+        // Reset file selection
+        selectedFile = null;
+        selectedSize = null;
+        compressedVideoBlob = null;
+        
+        // Reset UI elements
+        fileName.textContent = '';
+        videoInput.value = '';
+        sizeButtons.forEach(btn => btn.classList.remove('selected'));
+        removeAudio.checked = false;
+        
+        // Hide new video button, show compress button
+        newVideoBtn.style.display = 'none';
+        compressBtn.style.display = 'block';
+        compressBtn.disabled = true;
+        
+        // Hide results section
+        resultsSection.style.display = 'none';
+        
+        console.log("App state reset, ready for new video compression");
+    }
+
+    // New video button handler
+    newVideoBtn.addEventListener('click', resetAppState);
+
+    // Download handler
+    function downloadCompressedVideo() {
+        const downloadUrl = compressBtn.dataset.downloadUrl;
+        
+        if (downloadUrl) {
+            console.log("Initiating download from URL:", downloadUrl);
+            // Create a download link and click it
+            const downloadLink = document.createElement('a');
+            downloadLink.href = downloadUrl;
+            downloadLink.target = '_blank';
+            downloadLink.download = `compressed_${selectedFile.name}`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            // Show the new video button instead of entirely resetting
+            newVideoBtn.style.display = 'block';
+        } else {
+            console.error("No download URL available");
+            showError("Download URL not available. Please try again.");
+        }
+    }
+
+    // Compress button handler - using function variable so it can be reassigned if needed
+    const handleCompress = async () => {
         if (!selectedFile || !selectedSize) {
             console.error("Missing file or size selection");
             showError("Please select both a video file and compression size");
@@ -193,6 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log("Download URL:", downloadURL);
                         compressBtn.dataset.downloadUrl = downloadURL;
                         compressBtn.onclick = downloadCompressedVideo;
+                        
+                        // Prepare the new video button
+                        newVideoBtn.style.display = 'none';
                     }).catch(error => {
                         console.error("Error getting download URL:", error);
                         showError("Error preparing download. Please try again.");
@@ -206,48 +283,10 @@ document.addEventListener('DOMContentLoaded', () => {
             showError('An error occurred during compression: ' + error.message);
             resetCompressButton();
         }
-    });
+    };
 
-    // Helper function to show error messages
-    function showError(message) {
-        errorMessage.textContent = message;
-        errorMessage.style.display = 'block';
-    }
-
-    // Helper function to reset the button state
-    function resetCompressButton() {
-        progressSection.style.display = 'none';
-        resultsSection.style.display = 'none';
-        compressBtn.disabled = false;
-        compressBtn.textContent = 'Compress Video';
-        compressBtn.onclick = null;
-    }
-
-    // Download handler
-    function downloadCompressedVideo() {
-        const downloadUrl = compressBtn.dataset.downloadUrl;
-        
-        if (downloadUrl) {
-            console.log("Initiating download from URL:", downloadUrl);
-            // Create a download link and click it
-            const downloadLink = document.createElement('a');
-            downloadLink.href = downloadUrl;
-            downloadLink.target = '_blank';
-            downloadLink.download = `compressed_${selectedFile.name}`;
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-            
-            // Reset the button
-            setTimeout(() => {
-                resetCompressButton();
-                delete compressBtn.dataset.downloadUrl;
-            }, 1000);
-        } else {
-            console.error("No download URL available");
-            showError("Download URL not available. Please try again.");
-        }
-    }
+    // Attach the compress handler to the button
+    compressBtn.addEventListener('click', handleCompress);
 
     // Function to format file size
     function formatFileSize(bytes) {
