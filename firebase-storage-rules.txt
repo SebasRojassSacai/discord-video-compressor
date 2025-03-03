@@ -1,0 +1,18 @@
+rules_version = '2';
+
+// Firebase Storage rules for Discord Compressor
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /compressed_videos/{fileName} {
+      // Allow anyone to read compressed videos
+      allow read: if true;
+      
+      // Allow uploads with size constraints
+      allow create, update: if 
+          // File size limit of 100MB
+          request.resource.size < 100 * 1024 * 1024 && 
+          // Restrict to video files
+          request.resource.contentType.matches("video/.*");
+    }
+  }
+} 

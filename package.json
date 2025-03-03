@@ -1,0 +1,12 @@
+{
+  "name": "discord-video-compressor",
+  "version": "1.0.0",
+  "description": "A web application to compress videos for Discord",
+  "main": "server-config.js",
+  "scripts": {
+    "start": "node server-config.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+} 

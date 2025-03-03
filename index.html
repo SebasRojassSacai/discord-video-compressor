@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Video Compressor</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+    
+    <!-- FFmpeg.wasm libraries (version without SharedArrayBuffer) -->
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.9.8/dist/ffmpeg.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Discord Video Compressor</h1>
+            <p>Compress your videos to share on Discord</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="file-input-wrapper">
+                <input type="file" id="videoInput" accept="video/*" class="file-input">
+                <label for="videoInput" class="file-label">
+                    <span class="upload-icon">📁</span>
+                    <span>Choose Video File</span>
+                </label>
+            </div>
+            <div id="fileName" class="file-name"></div>
+        </div>
+
+        <div class="options-section">
+            <div class="compression-options">
+                <h2>Compression Size</h2>
+                <div class="size-buttons">
+                    <button class="size-btn" data-size="8">8MB</button>
+                    <button class="size-btn" data-size="16">16MB</button>
+                    <button class="size-btn" data-size="24">24MB</button>
+                    <button class="size-btn" data-size="50">50MB</button>
+                </div>
+                <p class="size-info">Please select a target size for your compressed video</p>
+            </div>
+
+            <div class="audio-option">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="removeAudio">
+                    <span class="checkmark"></span>
+                    Remove Audio
+                </label>
+            </div>
+        </div>
+
+        <div class="progress-section" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <p class="progress-text">Compressing: 0%</p>
+        </div>
+
+        <div class="results-section" style="display: none;">
+            <div class="size-comparison">
+                <div class="original-size">
+                    <span class="size-label">Original Size:</span>
+                    <span id="originalSize" class="size-value">0 MB</span>
+                </div>
+                <div class="compressed-size">
+                    <span class="size-label">Compressed Size:</span>
+                    <span id="compressedSize" class="size-value">0 MB</span>
+                </div>
+                <div class="size-reduction">
+                    <span class="size-label">Reduction:</span>
+                    <span id="sizeReduction" class="size-value">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <button id="compressBtn" class="compress-btn" disabled>
+            Compress Video
+        </button>
+        
+        <div id="error-message" class="error-message" style="display: none;"></div>
+    </div>
+    
+    <!-- Add console logger for debugging -->
+    <script>
+        // Simple error handler to catch and display any JavaScript errors
+        window.addEventListener('error', function(event) {
+            console.error('JavaScript error:', event.error);
+            const errorDiv = document.getElementById('error-message');
+            if (errorDiv) {
+                errorDiv.textContent = 'Error: ' + event.error.message;
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html>

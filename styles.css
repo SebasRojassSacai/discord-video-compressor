@@ -1,0 +1,243 @@
+:root {
+    --discord-blue: #5865F2;
+    --discord-dark: #36393f;
+    --discord-darker: #2f3136;
+    --discord-light: #dcddde;
+    --discord-green: #43b581;
+    --discord-red: #f04747;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--discord-dark);
+    color: var(--discord-light);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background-color: var(--discord-darker);
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    color: var(--discord-blue);
+    margin-bottom: 0.5rem;
+}
+
+.upload-section {
+    margin-bottom: 2rem;
+}
+
+.file-input-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    border: 2px dashed var(--discord-blue);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-label:hover {
+    background-color: rgba(88, 101, 242, 0.1);
+}
+
+.upload-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.file-name {
+    text-align: center;
+    color: var(--discord-light);
+    margin-top: 0.5rem;
+}
+
+.options-section {
+    margin-bottom: 2rem;
+}
+
+.compression-options h2 {
+    margin-bottom: 1rem;
+    color: var(--discord-blue);
+}
+
+.size-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.size-btn {
+    padding: 0.5rem 1rem;
+    background-color: var(--discord-blue);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.size-btn:hover {
+    background-color: #4752c4;
+}
+
+.size-btn.selected {
+    background-color: var(--discord-green);
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.checkbox-container input {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--discord-blue);
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    position: relative;
+}
+
+.checkbox-container input:checked + .checkmark {
+    background-color: var(--discord-blue);
+}
+
+.checkbox-container input:checked + .checkmark::after {
+    content: "✓";
+    position: absolute;
+    color: white;
+    font-size: 14px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.progress-section {
+    margin-bottom: 1.5rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background-color: var(--discord-green);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.results-section {
+    margin-bottom: 1.5rem;
+    background-color: rgba(88, 101, 242, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.size-comparison {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.original-size, .compressed-size, .size-reduction {
+    display: flex;
+    justify-content: space-between;
+}
+
+.size-label {
+    font-weight: bold;
+    color: var(--discord-light);
+}
+
+.size-value {
+    color: var(--discord-blue);
+}
+
+.size-reduction .size-value {
+    color: var(--discord-green);
+}
+
+.compress-btn {
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--discord-green);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.compress-btn:hover:not(:disabled) {
+    background-color: #3ca374;
+    transform: translateY(-1px);
+}
+
+.compress-btn:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+}
+
+.size-info {
+    font-size: 0.9rem;
+    color: #a3a6aa;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: rgba(240, 71, 71, 0.1);
+    border: 1px solid var(--discord-red);
+    border-radius: 4px;
+    color: var(--discord-red);
+    text-align: center;
+}
