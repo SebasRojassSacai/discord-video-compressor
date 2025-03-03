@@ -15,11 +15,10 @@ firebase.initializeApp(firebaseConfig);
 const analytics = firebase.analytics();
 const storage = firebase.storage();
 
-// Initialize FFmpeg (newer version with SharedArrayBuffer support)
+// Initialize FFmpeg (using the proper global namespace)
 const { createFFmpeg, fetchFile } = FFmpeg;
 const ffmpeg = createFFmpeg({ 
-    log: true,
-    corePath: 'https://unpkg.com/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js'
+    log: true 
 });
 
 // Load FFmpeg
