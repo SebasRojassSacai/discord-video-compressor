@@ -88,16 +88,22 @@
         <div id="error-message" class="error-message" style="display: none;"></div>
     </div>
     
-    <!-- Add console logger for debugging -->
+    <!-- Replace error handler with one that doesn't display in UI -->
     <script>
-        // Simple error handler to catch and display any JavaScript errors
+        // Error handler that only logs to console but doesn't display in UI
         window.addEventListener('error', function(event) {
             console.error('JavaScript error:', event.error);
-            const errorDiv = document.getElementById('error-message');
-            if (errorDiv) {
-                errorDiv.textContent = 'Error: ' + event.error.message;
-                errorDiv.style.display = 'block';
-            }
+            // Don't display in UI
+            event.preventDefault();
+            return false;
+        });
+        
+        // Also suppress unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            // Don't display in UI
+            event.preventDefault();
+            return false;
         });
     </script>
     

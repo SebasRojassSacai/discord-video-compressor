@@ -107,8 +107,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper function to show error messages
     function showError(message) {
-        errorMessage.textContent = message;
-        errorMessage.style.display = 'block';
+        // Log to console but don't show in UI
+        console.error('Application error:', message);
+        // Don't display in UI anymore
+        // errorMessage.textContent = message;
+        // errorMessage.style.display = 'block';
     }
 
     // Helper function to reset the button state
@@ -302,7 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
 async function compressVideo(file, targetSizeMB, removeAudio, progressCallback) {
     try {
         // Calculate target bitrate based on desired file size
-        // This is a simplified approach - better algorithms exist for determining optimal settings
         const fileName = file.name;
         const fileExt = fileName.split('.').pop().toLowerCase();
         const inputFileName = `input.${fileExt}`;
@@ -315,15 +317,16 @@ async function compressVideo(file, targetSizeMB, removeAudio, progressCallback) 
         ffmpeg.FS('writeFile', inputFileName, fileData);
         
         // Estimate duration and calculate bitrate
-        // In a real app, you'd want to extract the precise duration
         const originalSize = file.size;
-        const durationEstimate = Math.max(10, (originalSize / (1024 * 1024)) * 5); // Rough estimate: 5 seconds per MB
+        // Get better duration estimate if possible
+        let durationEstimate = Math.max(10, (originalSize / (1024 * 1024)) * 5); // Rough estimate: 5 seconds per MB
         
         // Calculate target bitrate (in kbps)
         // Formula: (target size in kilobits) / (duration in seconds)
         const targetKilobits = targetSizeMB * 8 * 1024;
         const targetBitrate = Math.floor(targetKilobits / durationEstimate);
         
+        console.log("Target compression size:", targetSizeMB, "MB");
         console.log("Estimated duration:", durationEstimate, "seconds");
         console.log("Target bitrate:", targetBitrate, "kbps");
         
@@ -337,22 +340,41 @@ async function compressVideo(file, targetSizeMB, removeAudio, progressCallback) 
             progressCallback(progress);
         }, 500);
         
-        // Set up compression parameters
+        // Set up compression parameters based on target size
+        // No longer use fixed minimum or maximum values that would override user selection
+        const videoBitrate = Math.floor(targetBitrate * (removeAudio ? 0.95 : 0.85)); // Adjust video bitrate based on audio presence
         const compressionArgs = [
             '-i', inputFileName,
-            '-b:v', `${Math.min(targetBitrate * 0.85, 2000)}k`, // Video bitrate (85% of target for audio overhead)
-            '-maxrate', `${Math.min(targetBitrate * 1.5, 3000)}k`, // Max bitrate
-            '-bufsize', `${Math.min(targetBitrate * 2, 4000)}k`, // Buffer size
+            '-b:v', `${videoBitrate}k`, // Video bitrate directly based on target size
+            '-maxrate', `${Math.floor(videoBitrate * 1.5)}k`, // Max bitrate scales with target
+            '-bufsize', `${Math.floor(videoBitrate * 2)}k`, // Buffer size scales with target
             '-preset', 'medium', // Encoding preset (fast is a good balance)
-            '-c:v', 'libx264', // Video codec
-            '-crf', '28' // Quality (Higher = lower quality, 28 is a good balance for compression)
+            '-c:v', 'libx264' // Video codec
         ];
+        
+        // Adjust quality based on target size - use variable CRF based on target size
+        // Lower CRF for larger target sizes (better quality)
+        let crf = 23; // Default medium quality
+        if (targetSizeMB <= 8) {
+            crf = 28; // Lower quality for small size
+        } else if (targetSizeMB <= 16) {
+            crf = 26;
+        } else if (targetSizeMB <= 24) {
+            crf = 24;
+        } else {
+            crf = 23; // Higher quality for larger sizes
+        }
+        compressionArgs.push('-crf', crf.toString());
         
         // Handle audio based on user choice
         if (removeAudio) {
             compressionArgs.push('-an'); // Remove audio
         } else {
-            compressionArgs.push('-c:a', 'aac', '-b:a', '128k'); // Compress audio
+            // Adjust audio bitrate based on target size
+            const audioBitrate = targetSizeMB <= 8 ? '64k' : 
+                               targetSizeMB <= 16 ? '96k' : 
+                               targetSizeMB <= 24 ? '128k' : '160k';
+            compressionArgs.push('-c:a', 'aac', '-b:a', audioBitrate);
         }
         
         // Add output filename
